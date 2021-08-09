@@ -15,6 +15,10 @@
 #include "stm32f3xx_hal_i2c.h"
 #include <cstdint>
 
+#ifndef DEBUG_BME
+	#define DEBUG_BME 1
+#endif
+
 class BME280{
 public:
 
@@ -55,11 +59,11 @@ public:
 	struct Settings{
 		Settings(
 				 Mode _mode      = FORCED,
-				 Filter _filter    = FILTER_OFF,
-				 OSR _temp_osr  = OSR_X1,
-				 OSR _hum_osr   = OSR_X1,
-				 OSR _press_osr = OSR_X1,
-				 t_standby _sb        = T_SB_1000
+				 Filter _filter  = FILTER_OFF,
+				 OSR _temp_osr   = OSR_X1,
+				 OSR _hum_osr    = OSR_X1,
+				 OSR _press_osr  = OSR_X1,
+				 t_standby _sb   = T_SB_1000
 				): m_mode(_mode),
 				   m_filter(_filter),
 				   m_temp_osr(_temp_osr),
@@ -77,6 +81,7 @@ public:
 
 	BME280(I2C_HandleTypeDef * i2c, const Settings& settings = Settings(), std::uint8_t addr = 0x76U);
 	bool Init();
+	bool SetSettings();
 	std::uint8_t GetID();
 	float GetTemperature();
 	float GetHumidity();
@@ -113,10 +118,13 @@ private:
 	const std::uint8_t ID_ADDR        = 0xD0U;
 	const std::uint8_t CONF_ADDR      = 0xF5U;
 	const std::uint8_t CTRL_MEAS_ADDR = 0xF4U;
+	const std::uint8_t CTRL_HUM_ADDR  = 0xF2U;
 
 	const std::uint8_t PRESS_ADDR = 0xF7U;
 	const std::uint8_t TEMP_ADDR  = 0xFAU;
 	const std::uint8_t HUM_ADDR   = 0xFDU;
+
+	const std::uint8_t DIG_LENGTH = 32;
 
 	const std::uint8_t TEMP_DIG_LENGTH = 6;
 	const std::uint8_t PRES_DIG_LENGTH = 18;
@@ -147,16 +155,15 @@ private:
 
 	Settings m_settings;
 
-	void Write_reg(std::uint8_t data);
-	void Read_reg(std::uint8_t * data, std::uint8_t size);
+	/*
+	 * You can put your own I2C implementation, for now, i'm using HAL for I2C communication
+	 */
 
-	void DIG_T();
-	void DIG_P();
-	void DIG_H1();
-	void DIG_H2();
+	bool Write_reg(std::uint8_t data);
+	bool Write_reg(std::uint8_t * data, std::uint8_t size);
+	bool Read_reg(std::uint8_t * data, std::uint8_t size);
 
-
-
+	bool GetDig_T();
 
 };
 

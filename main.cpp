@@ -30,6 +30,9 @@
 //turn this define to 0 when you want to upload the final code
 #define DEBUG 1
 
+#if DEBUG
+#endif
+
 //buffer length is 2 times dma adc buffer legnth due to each DMA_ADC data consist od two bytes of data
 #define DMA_ADC_BUFFER_LENGTH 2
 #define BUFFER_LENGTH DMA_ADC_BUFFER_LENGTH * 2
@@ -73,6 +76,7 @@ void Initializate_TIMER4();
 	@param offset, starting position of the buffer you want to place your value
 */
 void assemble_buffer(std::uint8_t * buffer, std::uint16_t value,std::uint8_t offset);
+
 /* USER CODE END PFP */
 
 /**
@@ -88,7 +92,7 @@ int main(void)
   /* USER CODE END 1 */
 
   HAL_Init();
-
+  utils::delay::Init();
   /* USER CODE BEGIN Init */
   /*configure clock for ADC*/
   	RCC->CR |= RCC_CR_PLLON;
@@ -110,6 +114,8 @@ int main(void)
 
   	NVIC_EnableIRQ(DMA1_Channel1_IRQn);
   	NVIC_SetPriority(DMA1_Channel1_IRQn, 0);
+
+  	float temp, hum, press;
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -118,19 +124,21 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
-  BME280 bme(&hi2c1);
   /* USER CODE BEGIN 2 */
+  BME280 bme(&hi2c1);
 
-  /* USER CODE END 2 */
   if(!bme.Init()){
 	  GPIOA->ODR ^= (1 << 5);
   }
+
+  bme.ReadSensor(press, temp, hum);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  utils::delay::ms(2500);
+	  bme.ReadSensor(press, temp, hum);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

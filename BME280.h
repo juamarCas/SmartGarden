@@ -13,6 +13,7 @@
 /*change this for the stm you are using*/
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_i2c.h"
+#include "utils.h"
 #include <cstdint>
 
 #ifndef DEBUG_BME
@@ -67,7 +68,8 @@ public:
 				): m_mode(_mode),
 				   m_filter(_filter),
 				   m_temp_osr(_temp_osr),
-				   m_hum_osr(_press_osr),
+				   m_hum_osr(_hum_osr),
+				   m_press_osr(_press_osr),
 				   m_sb(_sb){}
 		Mode m_mode;
 		Filter m_filter;
@@ -83,9 +85,12 @@ public:
 	bool Init();
 	bool SetSettings();
 	std::uint8_t GetID();
+
 	float GetTemperature();
 	float GetHumidity();
 	float GetPressure();
+
+	void ReadSensor(float& press, float& temp, float& hum);
 
 
 private:
@@ -93,32 +98,14 @@ private:
 
 	std::uint8_t m_dig[32];
 	std::uint8_t m_addr;
-/*
-	std::uint16_t m_dig_t1;
-	std::int16_t  m_dig_t2;
-	std::int16_t  m_dig_t3;
 
-	std::uint16_t m_dig_p1;
-	std::int16_t  m_dig_p2;
-	std::int16_t  m_dig_p3;
-	std::int16_t  m_dig_p4;
-	std::int16_t  m_dig_p5;
-	std::int16_t  m_dig_p6;
-	std::int16_t  m_dig_p7;
-	std::int16_t  m_dig_p8;
-	std::int16_t  m_dig_p9;
-
-	std::uint16_t m_dig_h1;
-	std::int16_t  m_dig_h2;
-	std::uint8_t  m_dig_h3;
-	std::int16_t  m_dig_h4;
-	std::int16_t  m_dig_h5;
-	std::int8_t   m_dig_h6;
-*/
 	const std::uint8_t ID_ADDR        = 0xD0U;
 	const std::uint8_t CONF_ADDR      = 0xF5U;
 	const std::uint8_t CTRL_MEAS_ADDR = 0xF4U;
 	const std::uint8_t CTRL_HUM_ADDR  = 0xF2U;
+
+	const std::uint8_t STATUS_ADDR    = 0xF3U;
+	const std::uint8_t RESET_ADDR     = 0xE0U;
 
 	const std::uint8_t PRESS_ADDR = 0xF7U;
 	const std::uint8_t TEMP_ADDR  = 0xFAU;
@@ -153,15 +140,51 @@ private:
 	const std::uint8_t DIG_H5_ADDR = 0xE5U;
 	const std::uint8_t DIG_H6_ADDR = 0xE7U;
 
+	const std::uint8_t SENSOR_LENGTH = 8;
+
+	/*
+	 * TRIMS
+	 */
+
+	std::uint16_t dig_T1;
+	std::int16_t  dig_T2;
+	std::int16_t  dig_T3;
+
+	std::uint8_t dig_H1;
+	std::int16_t dig_H2;
+	std::uint8_t dig_H3;
+	std::int16_t dig_H4;
+	std::int16_t dig_H5;
+	std::int8_t  dig_H6;
+
+	std::uint16_t  dig_P1;
+	std::int16_t   dig_P2;
+	std::int16_t   dig_P3;
+	std::int16_t   dig_P4;
+	std::int16_t   dig_P5;
+	std::int16_t   dig_P6;
+	std::int16_t   dig_P7;
+	std::int16_t   dig_P8;
+	std::int16_t   dig_P9;
+
+	std::int32_t t_fine;
+
 	Settings m_settings;
+
 
 	/*
 	 * You can put your own I2C implementation, for now, i'm using HAL for I2C communication
 	 */
 
+	float CalculateTemp(std::int32_t raw);
+	float CalculateHum(std::int32_t raw);
+	float CalculatePress(std::int32_t raw);
+
+	bool ReadingCalibration(void);
+	bool ReadSensorData(std::int8_t * data);
 	bool Write_reg(std::uint8_t data);
 	bool Write_reg(std::uint8_t * data, std::uint8_t size);
-	bool Read_reg(std::uint8_t * data, std::uint8_t size);
+	bool Read_reg(std::uint8_t * data, std::uint8_t mem_addr ,std::uint8_t size);
 
 	bool GetDig_T();
 

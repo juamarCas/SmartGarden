@@ -22,8 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "Includes.h"
-#include "BME280.h"
+#include "includes.h"
+
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN PD */
@@ -38,10 +38,11 @@
 #define BUFFER_LENGTH DMA_ADC_BUFFER_LENGTH * 2
 
 /*sensors information*/
-#define BME_ADDR 0x76
 
+#define READ_ADDR (0x70U << 1) | 0x01
 #define START_ADC_CONVERTION ADC1->CR |= ADC_CR_ADSTART
 #define STOP_ADC_CONVERTION  ADC1->CR |= ADC_CR_ADSTP
+#define SHCT_ADDR (0x70U << 1)
 
 volatile int counter = 0;
 
@@ -88,7 +89,11 @@ int main(void)
   /* USER CODE BEGIN 1 */
 	__disable_irq();
 	/*variables initializations*/
+	volatile const std::uint16_t id_addr      = 0xC8EFU;
+	volatile const std::uint16_t wake_up_addr = 0x1735U;
 	volatile std::uint16_t sensor_value_1 = 0;
+	volatile std::uint16_t sensor_id = 0;
+	std::uint8_t data[2] = {0, 0};
   /* USER CODE END 1 */
 
   HAL_Init();
@@ -125,20 +130,25 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  BME280 bme(&hi2c1);
+   if(HAL_I2C_Master_Transmit(&hi2c1, SHCT_ADDR, (std::uint8_t *)&wake_up_addr , 2, HAL_MAX_DELAY) != HAL_OK){
+  	   GPIOA->ODR |= (1 << 5);
+   }
+   utils::delay::us(250);
+   if(HAL_I2C_Master_Transmit(&hi2c1, SHCT_ADDR, (std::uint8_t *)&id_addr , 2, HAL_MAX_DELAY) != HAL_OK){
+	   GPIOA->ODR |= (1 << 5);
+   }
 
-  if(!bme.Init()){
-	  GPIOA->ODR ^= (1 << 5);
-  }
+   if(HAL_I2C_Master_Receive(&hi2c1, SHCT_ADDR, data, 2, HAL_MAX_DELAY) != HAL_OK){
+	   GPIOA->ODR |= (1 << 5);
+   }
 
-  bme.ReadSensor(press, temp, hum);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
 	  utils::delay::ms(2500);
-	  bme.ReadSensor(press, temp, hum);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

@@ -13,7 +13,7 @@
 /*change this for the stm you are using*/
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_i2c.h"
-#include "utils.h"
+#include "Utils.h"
 #include <cstdint>
 
 #ifndef DEBUG_BME

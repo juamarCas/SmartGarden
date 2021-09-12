@@ -23,9 +23,10 @@
 * and the fact this architecture is little endian*/
 /*ex -> C8EF is id_addr and i'm sendig EFC8 that is the actual addr
  */
-#define ID_CMD            0xC8EFU
-#define SHTC3_WAKE_UP_CMD 0x1735U
-#define SHTC3_SLEEP_CMD   0x98B0U
+#define SHTC3_ID_CMD                 0xC8EFU
+#define SHTC3_WAKE_UP_CMD            0x1735U
+#define SHTC3_SLEEP_CMD              0x98B0U
+#define SHTC3_NORMAL_MEASUREMENT_CMD 0xA27CU
 
 class SHTC3 {
 public:
@@ -37,7 +38,9 @@ private:
 	bool Write_reg16(std::uint16_t data);
 	bool Write_reg(std::uint8_t * data, std::uint8_t size);
 	bool Read_reg(std::uint8_t * data, std::uint16_t mem_addr ,std::uint8_t size_t, std::uint8_t size_r);
+	bool Read_reg(std::uint8_t * data, std::uint8_t size_r);
 	bool Read_reg16(std::uint8_t * data, std::uint16_t  mem_addr);
+	bool CheckCRC(std::uint16_t val, std::uint8_t expected);
 
 public:
 	/*
@@ -47,7 +50,8 @@ public:
 	bool begin();
 	void sleep();
 	void wake_up();
-	void Read_sensor(std::uint8_t &temp, std::uint8_t &hum);
+	bool Read_sensor(float& temp, float& hum, std::uint16_t MEAS_CMD);
+	//void Read_sensor(std::uint8_t &temp, std::uint8_t &hum);
 	SHTC3(I2C_HandleTypeDef * i2c, std::uint8_t addr = 0x70);
 };
 

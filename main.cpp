@@ -137,12 +137,19 @@ int main(void)
 	   GPIOA->ODR |= (1 << 5);
    }
 
+   if(!shtc.Read_sensor(temp, hum, SHTC3_NORMAL_MEASUREMENT_CMD )){
+	   GPIOA->ODR |= (1 << 5);
+   }
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
 	  utils::delay::ms(2500);
+	  if(!shtc.Read_sensor(temp, hum, SHTC3_NORMAL_MEASUREMENT_CMD )){
+	 	   GPIOA->ODR |= (1 << 5);
+	    }
 
     /* USER CODE BEGIN 3 */
   }

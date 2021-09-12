@@ -23,7 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "includes.h"
-
+#include "SHTC3.h"
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN PD */
@@ -113,6 +113,7 @@ int main(void)
   	RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
 
   	periph::GPIO::set_pin(GPIOA, 5, OUTPUT);
+
   	Initializate_UART3();
   	Initializate_ADC1();
 
@@ -120,7 +121,7 @@ int main(void)
   	NVIC_EnableIRQ(DMA1_Channel1_IRQn);
   	NVIC_SetPriority(DMA1_Channel1_IRQn, 0);
 
-  	float temp, hum, press;
+  	float temp, hum;
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -130,15 +131,9 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-   if(HAL_I2C_Master_Transmit(&hi2c1, SHCT_ADDR, (std::uint8_t *)&wake_up_addr , 2, HAL_MAX_DELAY) != HAL_OK){
-  	   GPIOA->ODR |= (1 << 5);
-   }
-   utils::delay::us(250);
-   if(HAL_I2C_Master_Transmit(&hi2c1, SHCT_ADDR, (std::uint8_t *)&id_addr , 2, HAL_MAX_DELAY) != HAL_OK){
-	   GPIOA->ODR |= (1 << 5);
-   }
+   SHTC3 shtc(&hi2c1);
 
-   if(HAL_I2C_Master_Receive(&hi2c1, SHCT_ADDR, data, 2, HAL_MAX_DELAY) != HAL_OK){
+   if(!shtc.begin()){
 	   GPIOA->ODR |= (1 << 5);
    }
 

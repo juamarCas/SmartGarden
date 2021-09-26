@@ -39,16 +39,16 @@
 
 /*sensors information*/
 
-#define READ_ADDR (0x70U << 1) | 0x01
+#define READ_ADDR            (0x70U << 1) | 0x01
 #define START_ADC_CONVERTION ADC1->CR |= ADC_CR_ADSTART
 #define STOP_ADC_CONVERTION  ADC1->CR |= ADC_CR_ADSTP
-#define SHCT_ADDR (0x70U << 1)
+#define SHCT_ADDR            (0x70U << 1)
 
 volatile int counter = 0;
 
 /*variables declaration*/
 std::uint16_t adc_dma_buffer[DMA_ADC_BUFFER_LENGTH] = {0, 0};
-std::uint8_t buffer[BUFFER_LENGTH] = {0, 0};
+std::uint8_t buffer[BUFFER_LENGTH] = {0};
 /* USER CODE END PD */
 
 I2C_HandleTypeDef hi2c1;
@@ -89,8 +89,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 	__disable_irq();
 	/*variables initializations*/
-	volatile const std::uint16_t id_addr      = 0xC8EFU;
-	volatile const std::uint16_t wake_up_addr = 0x1735U;
 	volatile std::uint16_t sensor_value_1 = 0;
 	volatile std::uint16_t sensor_id = 0;
 	std::uint8_t data[2] = {0, 0};

@@ -46,9 +46,20 @@
 
 volatile int counter = 0;
 
-/*variables declaration*/
-std::uint16_t adc_dma_buffer[DMA_ADC_BUFFER_LENGTH] = {0, 0};
-std::uint8_t buffer[BUFFER_LENGTH] = {0};
+/*Payload contains all the sensor information*/
+typedef struct Payloads{
+	std::uint16_t moist_1;
+	std::uint16_t moist_2;
+	float         temp;
+	float         hum;
+}Payload;
+
+enum States {Idle, Moist, TempHum, WaitingESP, SendingUART, Sleep,Error};
+
+States state;
+Payload * payload;
+
+
 /* USER CODE END PD */
 
 I2C_HandleTypeDef hi2c1;
@@ -78,6 +89,28 @@ void Initializate_TIMER4();
 */
 void assemble_buffer(std::uint8_t * buffer, std::uint16_t value,std::uint8_t offset);
 
+/*Interrupt functions*/
+std::uint16_t moist1;
+std::uint16_t moist2;
+std::uint16_t adc_dma_buffer[DMA_ADC_BUFFER_LENGTH] = {0, 0};
+std::uint8_t buffer[BUFFER_LENGTH] = {0};
+float temp, hum;
+extern "C"{
+	void DMA1_Channel1_IRQHandler(void){
+
+		if(DMA1->ISR & DMA_ISR_TCIF1){
+			moist1 = adc_dma_buffer[0];
+			moist2 = adc_dma_buffer[1];
+			STOP_ADC_CONVERTION;
+			DMA1->IFCR |= DMA_IFCR_CTCIF1;
+		}
+
+	}
+
+}
+
+
+
 /* USER CODE END PFP */
 
 /**
@@ -88,9 +121,12 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	__disable_irq();
+	/*variables declaration*/
+
 	/*variables initializations*/
 	volatile std::uint16_t sensor_value_1 = 0;
 	volatile std::uint16_t sensor_id = 0;
+
 	std::uint8_t data[2] = {0, 0};
   /* USER CODE END 1 */
 
@@ -119,7 +155,6 @@ int main(void)
   	NVIC_EnableIRQ(DMA1_Channel1_IRQn);
   	NVIC_SetPriority(DMA1_Channel1_IRQn, 0);
 
-  	float temp, hum;
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -135,20 +170,40 @@ int main(void)
 	   GPIOA->ODR |= (1 << 5);
    }
 
-   if(!shtc.Read_sensor(temp, hum, SHTC3_NORMAL_MEASUREMENT_CMD )){
-	   GPIOA->ODR |= (1 << 5);
+   state = Moist;
+   utils::delay::ms(2500);
+  if(!shtc.Read_sensor(temp, hum, SHTC3_NORMAL_MEASUREMENT_CMD )){
+	  GPIOA->ODR |= (1 << 5);
    }
 
+
+  __enable_irq();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-	  utils::delay::ms(2500);
+	  START_ADC_CONVERTION;
+	  utils::delay::ms(1000);
 	  if(!shtc.Read_sensor(temp, hum, SHTC3_NORMAL_MEASUREMENT_CMD )){
-	 	   GPIOA->ODR |= (1 << 5);
-	    }
+		  GPIOA->ODR |= (1 << 5);
+	   }
+	  switch(state){
+	  	  case Moist:
+	  	  break;
 
+	  	  case TempHum:
+	  	  break;
+
+	  	  case WaitingESP:
+		  break;
+
+	  	  case SendingUART:
+	  	  break;
+
+	  	  case Sleep:
+	  	  break;
+	  }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

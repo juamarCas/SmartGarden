@@ -6,6 +6,7 @@
  *
  *      all this information is taken from the datasheet
  *      got some inspiration with this lib: https://github.com/belyalov/stm32-hal-libraries/blob/master/shtc3.c
+ *      currently does not support clock sccretch
  */
 
 #ifndef SRC_SMARTGARDEN_SHTC3_H_

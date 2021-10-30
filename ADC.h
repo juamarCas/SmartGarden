@@ -30,7 +30,7 @@
 
 /*number of conversions macros*/
 #define ADC_LENGTH_1 (0x0U << 0x0U)
-#define ADC_LENGTH_2 (0x0U << 0x1U)
+#define ADC_LENGTH_2 (0x1U << 0x0U)
 #define ADC_LENGTH_3 (0x0U << 0x2U) 
 #define ADC_LENGTH_4 (0x0U << 0x3U) 
 #define ADC_LENGTH_5 (0x0U << 0x4U) 

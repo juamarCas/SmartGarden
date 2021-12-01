@@ -55,8 +55,9 @@ typedef struct Payloads{
 }Payload;
 
 enum States {Idle, Moist, TempHum, WaitingESP, SendingUART, Sleep,Error};
+typedef enum States States_Typedef;
 
-States state;
+States_Typedef state;
 Payload * payload;
 
 
@@ -119,6 +120,7 @@ extern "C"{
   */
 int main(void)
 {
+	//__WFI();
   /* USER CODE BEGIN 1 */
 	__disable_irq();
 	/*variables declaration*/

@@ -58,13 +58,7 @@ typedef struct Payloads{
 	float         hum;
 }Payload;
 
-<<<<<<< HEAD
-enum States {Idle, Moist, TempHum, WaitingESP, SendingUART, Sleep,Error};
-typedef enum States States_Typedef;
 
-States_Typedef state;
-Payload * payload;
-=======
 /*each state measures some variables depending of teh sensor*/
 typedef struct SM_State{
 	void (*state_action_ptr)(void);
@@ -104,7 +98,7 @@ SM_States_TypeDef sm_states[4] = {
 				{&sm_states[TempHum], &sm_states[TempHum]}
 		}
 };
->>>>>>> a070bded8b81fa11b7b37e2a0cd1843de25267fe
+
 
 SM_States_TypeDef * state_ptr;
 

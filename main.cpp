@@ -160,7 +160,17 @@ extern "C"{
 	}
 
 }
+/*
+ * TODO: impĺement this
+ * char data[sizeof(payload) + 1];
+	  char * myData = reinterpret_cast<char *>(&payload);
 
+	  for(unsigned int i = 0; i < sizeof(payload); i++){
+		  data[i] = myData[i];
+	  }
+	  data[sizeof(payload)] = '\n';
+ *
+ * */
 
 
 /* USER CODE END PFP */

@@ -22,5 +22,5 @@ The firmware is made using the CMSIS standard except the I2C driver, it uses STM
 ![Flow chart](./images/gardemeterFlowChart.jpg) 
 
 ## Raspberry pi
-
+The RPI part of the project can be seen here: https://github.com/juamarCas/RPIServer
 

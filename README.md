@@ -20,6 +20,10 @@ STM32F303x8 is a 32 bit Cortex-M4 microcontroller. This project uses the followi
 The firmware is made using the CMSIS standard except the I2C driver, it uses STM HAL library. The flow chart can be seen in the following picture: <br/>
 ![Flow chart](./images/gardemeterFlowChart.jpg) 
 
+### Hardware
+
+The PCB is made using KiCad. You can see the project files here: [Analog Reader](https://github.com/juamarCas/AnalogReader)
+
 ## Raspberry pi
 The RPI part of the project can be seen here: https://github.com/juamarCas/MQTT_middleware
 
